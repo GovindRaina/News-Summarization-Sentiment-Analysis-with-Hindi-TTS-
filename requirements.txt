@@ -1,0 +1,11 @@
+streamlit
+fastapi
+uvicorn
+requests
+beautifulsoup4
+newspaper3k
+nltk
+textblob
+gtts
+lxml
+pydantic
