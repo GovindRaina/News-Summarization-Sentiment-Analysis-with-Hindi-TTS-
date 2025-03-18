@@ -1,16 +1,17 @@
 import streamlit as st
 import requests
 
-# Replace with your Hugging Face API URL
-API_BASE_URL = "https://your-username-news-summarization-api.hf.space"
+# ✅ Use the correct API URL based on where it's running
+API_BASE_URL = "http://127.0.0.1:8000"  # If FastAPI is running locally
+# API_BASE_URL = "https://your-hf-fastapi-space.hf.space"  # If deployed on Hugging Face
 
 st.title("News Summarization & Sentiment Analysis")
 
 company_name = st.text_input("Enter Company Name:")
 
 if st.button("Analyze"):
-    api_url = f"{API_BASE_URL}/news/{company_name}"
-    
+    api_url = f"{API_BASE_URL}/news/{company_name}"  # ✅ Correct API path
+
     st.write(f"🔄 Fetching news for: {company_name}...")  # Debugging output
 
     try:

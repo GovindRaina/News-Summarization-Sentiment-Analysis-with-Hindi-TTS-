@@ -7,10 +7,17 @@ from tts_generation import generate_hindi_audio
 
 app = FastAPI()
 
+@app.get("/")
+def home():
+    return {"message": "FastAPI is running!"}
+
 @app.get("/news/{company_name}")
 def get_news(company_name: str):
+    print(f"✅ Received API request for: {company_name}")  # Debugging
+
     articles = fetch_news(company_name)
-    
+    print(f"✅ Extracted {len(articles)} articles")  # Debugging
+
     for article in articles:
         article["sentiment"] = analyze_sentiment(article["summary"])
 
@@ -19,6 +26,7 @@ def get_news(company_name: str):
     final_text = f"{company_name} की हाल की खबरें ज्यादातर {analysis['Sentiment Distribution']} दिखाती हैं।"
     audio_file = generate_hindi_audio(final_text)
 
+    print(f"✅ Returning API response for {company_name}")  # Debugging
     return {
         "Company": company_name,
         "Articles": articles,
@@ -26,9 +34,16 @@ def get_news(company_name: str):
         "Audio File": audio_file
     }
 
-# Gradio Wrapper to Keep API Running on Hugging Face
-def start_fastapi():
+# Run FastAPI in a separate thread so Gradio doesn’t interfere
+import threading
+def run_fastapi():
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=7860)
+    uvicorn.run(app, host="0.0.0.0", port=8000)
 
-gr.Interface(fn=start_fastapi, inputs=[], outputs=[]).launch()
+threading.Thread(target=run_fastapi).start()
+
+# Gradio UI to confirm API is running
+with gr.Blocks() as demo:
+    gr.Markdown("# ✅ FastAPI is Running at http://127.0.0.1:8000")
+
+demo.launch()
