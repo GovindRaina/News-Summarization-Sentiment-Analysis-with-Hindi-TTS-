@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+import gradio as gr
 from news_extraction import fetch_news
 from sentiment_analysis import analyze_sentiment
 from comparative_analysis import comparative_analysis
@@ -8,29 +9,26 @@ app = FastAPI()
 
 @app.get("/news/{company_name}")
 def get_news(company_name: str):
-    """
-    API Endpoint to fetch news, analyze sentiment, compare trends, and generate TTS.
-    """
-    # Step 1: Fetch news articles
     articles = fetch_news(company_name)
     
-    # Step 2: Perform sentiment analysis
     for article in articles:
         article["sentiment"] = analyze_sentiment(article["summary"])
 
-    # Step 3: Comparative sentiment analysis
     analysis = comparative_analysis(articles)
 
-    # Step 4: Convert final sentiment report into Hindi speech
     final_text = f"{company_name} की हाल की खबरें ज्यादातर {analysis['Sentiment Distribution']} दिखाती हैं।"
     audio_file = generate_hindi_audio(final_text)
 
-    # Step 5: Return the structured response with audio
     return {
         "Company": company_name,
         "Articles": articles,
         "Comparative Analysis": analysis,
-        "Audio File": audio_file  # Path to the generated TTS file
+        "Audio File": audio_file
     }
 
-# Run API with: uvicorn api:app --reload
+# Gradio Wrapper to Keep API Running on Hugging Face
+def start_fastapi():
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=7860)
+
+gr.Interface(fn=start_fastapi, inputs=[], outputs=[]).launch()
